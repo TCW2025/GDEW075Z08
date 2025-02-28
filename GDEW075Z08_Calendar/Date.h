@@ -5,6 +5,14 @@
 
 using namespace std;
 
+
+typedef struct
+{
+    string name = "";
+    bool off  = false;
+} Holiday;
+
+
 //農曆回傳結構 by 天
 typedef struct
 {
@@ -14,7 +22,7 @@ typedef struct
     string heavenlyStems; //天干
     string earthlyBranches; //地支
     string zodiac;//生肖
-    string lunarHoliday = ""; //農曆節日
+    Holiday lunarHoliday ; //農曆節日
     string solarTerm = "";  //二十四節氣名稱
 } StructLunarDate;
 
@@ -23,7 +31,7 @@ typedef struct
     int year = 0 ;
     int month;
     int day;
-    string holiday = "";
+    Holiday holiday;
     StructLunarDate iStructLunarDate ; //每一天的農曆日期
     bool notice = false;
 
@@ -61,6 +69,6 @@ string get_lunar_solar_term_holiday(StructsolarTerm* structsolarTermArray, int m
 
 int get_day_of_week(int year,int month,int day);
 int get_days_of_month(int year,int month);
-string get_holiday(int month, int day);
+Holiday get_holiday(int month, int day);
 
 #endif // DATE_H

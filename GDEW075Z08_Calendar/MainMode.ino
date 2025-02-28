@@ -56,7 +56,10 @@ void showMainModePage(){
 
 void drawMonth(tm timeinfo, StructDayData *iStructDayData){
   for(int i =0 ; i< 7 * 6 ; i++){
-    String lunarDate = String(iStructDayData[i].iStructLunarDate.lunarHoliday.c_str());
+    String lunarDate = String(iStructDayData[i].iStructLunarDate.lunarHoliday.name.c_str());
+    if( lunarDate.length() == 0 ){
+        lunarDate = String(iStructDayData[i].holiday.name.c_str());
+    } 
     if( lunarDate.length() == 0 ){
         lunarDate = String(iStructDayData[i].iStructLunarDate.solarTerm.c_str());
     } 
@@ -67,13 +70,14 @@ void drawMonth(tm timeinfo, StructDayData *iStructDayData){
     int dayX = day.length()==1 ? 5 : 0;
 
     uint16_t bg_color = GxEPD_WHITE;
-    uint16_t fg_color = ( i % 7 == 0 || i % 7 == 6)?GxEPD_RED:GxEPD_BLACK;
+    uint16_t fg_color = ( i % 7 == 0 || i % 7 == 6 || iStructDayData[i].holiday.off || iStructDayData[i].iStructLunarDate.lunarHoliday.off)?GxEPD_RED:GxEPD_BLACK;
 
     if(String(timeinfo.tm_year) == String(iStructDayData[i].year) &&  String(timeinfo.tm_mon) == String(iStructDayData[i].month)  && String(timeinfo.tm_mday) == String(iStructDayData[i].day)){
       uint16_t tmp  = bg_color;
       bg_color = fg_color;
       fg_color = tmp;
       display.fillRect((i % 7) * 81 - 5, 125 + ( i/7 * 58 ), 85, 60, bg_color);
+      textCh(iStructDayData[i].holiday.name.c_str(), 420 , 68 , GxEPD_BLACK, GxEPD_WHITE); 
     }
 
     text18(day.c_str(), 20 + (i % 7) * 81 + dayX, 150 + ( i/7 * 58 ) , fg_color, bg_color); 
@@ -91,11 +95,11 @@ void onlnyUpdateRight(tm timeinfo){
     return;
   }
 
-  display.setPartialWindow(575, 0, 230, 180 );
+  display.setPartialWindow(580, 0, 230, 180 );
   display.fillScreen(GxEPD_WHITE);
   display.firstPage();
   do {
-    display.fillRect(575, 5, 225, 175, GxEPD_WHITE);
+    //display.fillRect(575, 5, 225, 175, GxEPD_WHITE);
     drawTime(timeinfo, iStructTemperature);
   } while (display.nextPageBW());
   display.powerOff();
@@ -120,11 +124,11 @@ void drawDateTitle(tm timeinfo, StructLunarDate  iStructLunarDate){
   
   title = "農曆: ";
   title = title + String(iStructLunarDate.heavenlyStems.c_str()) + String(iStructLunarDate.earthlyBranches.c_str()) + "年  " + mon + String(iStructLunarDate.day.c_str()) ;
-  title = title + String(iStructLunarDate.solarTerm.c_str()) + " " + String(iStructLunarDate.lunarHoliday.c_str());
+  title = title + " " + String(iStructLunarDate.lunarHoliday.name.c_str()) ;
   textCh(title.c_str(), 25, 68, GxEPD_BLACK, GxEPD_WHITE); 
 
   title = String(iStructLunarDate.zodiac.c_str()) + "年";
-  textCh34(title.c_str(), 400, 50, GxEPD_RED, GxEPD_WHITE); 
+  textCh34(title.c_str(), 400, 45, GxEPD_RED, GxEPD_WHITE); 
 
 }
 
@@ -241,8 +245,8 @@ void drawTime(tm timeinfo, StructTemperature iStructTemperature){
   textCh(hour.c_str(), 585, 130, GxEPD_BLACK, GxEPD_WHITE); 
 
   float voltage = getVoltage().toFloat();
-  float index = (voltage - 3.1) / (3.86 - 3.1) * 100.0 ;
-  hour = "電量:" + String(voltage, 4) + "V , " + String(index, 0) + "%";
+  float index = (voltage - 3.1) / (3.89 - 3.1) * 100.0 ;
+  hour = "電量:" + String(voltage, 3) + "V , " + String(index, 0) + "%";
   textCh(hour.c_str(), 585, 155, GxEPD_BLACK, GxEPD_WHITE); 
 }
 

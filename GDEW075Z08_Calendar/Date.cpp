@@ -373,33 +373,38 @@ string get_lunar_solar_term_holiday(StructsolarTerm* structsolarTermArray, int m
     return "";
 }
 
-string get_holiday(int month, int day){
-   
+Holiday get_holiday(int month, int day){
+   Holiday holiday ;
    if(month == 1 &&  day == 1){
-     return "元旦";
+     holiday.name = "元旦";
+     holiday.off = true;
    }
    if(month == 10 &&  day == 10){
-     return "雙十節";
+     holiday.name = "雙十節";
+     holiday.off = true;
    }
    if(month == 4 &&  day == 4){
-     return "兒童節";
+     holiday.name = "兒童節";
+     holiday.off = true;
    }
    if(month == 2 &&  day == 28){
-     return "和平紀念日";
+     holiday.name = "和平日";
+     holiday.off = true;
    }
    if(month == 12 &&  day == 25){
-     return "聖誕節";
+     holiday.name = "聖誕節";
    }
    if(month == 10 &&  day == 31){
-     return "萬聖節";
+     holiday.name = "萬聖節";
    }
    if(month == 5 &&  day == 1){
-     return "勞動節";
+     holiday.name = "勞動節";
+     holiday.off = true;
    }
    if(month == 8 &&  day == 8){
-     return "父親節";
+     holiday.name = "父親節";
    }
-   return "";
+   return holiday;
 }
 
 
@@ -503,25 +508,59 @@ StructLunarDate print_lunar_date(int days)
 
     iStructLunarDate.heavenlyStems = heavenlyStems[(year-1864)%10];
     iStructLunarDate.earthlyBranches = earthlyBranches[(year-1864)%12];
-    iStructLunarDate.lunarHoliday = "";
+    //iStructLunarDate.lunarHoliday = "";
 
     //盡量三個字
     if(month == 1 && day == 1)
-    {    iStructLunarDate.lunarHoliday =  "春節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "春節";
+      iStructLunarDate.lunarHoliday.off = true;
+    }
+    else if(month == 1 && day == 2)
+    {    
+      iStructLunarDate.lunarHoliday.name =  "";
+      iStructLunarDate.lunarHoliday.off = true;
+    }
+    else if(month == 1 && day == 3)
+    {    
+      iStructLunarDate.lunarHoliday.name =  "";
+      iStructLunarDate.lunarHoliday.off = true;
+    }
+    else if(month == 12 && day == 31)
+    {    
+      iStructLunarDate.lunarHoliday.name =  "";
+      iStructLunarDate.lunarHoliday.off = true;
+    }
     else if(month == 1 && day == 15)
-    {    iStructLunarDate.lunarHoliday =  "元宵節";}
+    {
+      iStructLunarDate.lunarHoliday.name =  "元宵節";
+    }
     else if(month == 5 && day == 5)
-    {    iStructLunarDate.lunarHoliday =  "端午節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "端午節";
+      iStructLunarDate.lunarHoliday.off = true;
+    }
     else if(month == 7 && day == 7)
-    {    iStructLunarDate.lunarHoliday =  "七夕節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "七夕節";
+    }
     else if(month == 7 && day == 15)
-    {    iStructLunarDate.lunarHoliday =  "中元節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "中元節";
+    }
     else if(month == 8 && day == 15)
-    {    iStructLunarDate.lunarHoliday =  "中秋節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "中秋節";
+      iStructLunarDate.lunarHoliday.off = true;
+    }
     else if(month == 9 && day == 9)
-    {    iStructLunarDate.lunarHoliday =  "重陽節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "重陽節";
+    }
     else if(month == 12 && day == 8)
-    {    iStructLunarDate.lunarHoliday =  "臘八節";}
+    {    
+      iStructLunarDate.lunarHoliday.name =  "臘八節";
+    }
 
     return iStructLunarDate;
 }

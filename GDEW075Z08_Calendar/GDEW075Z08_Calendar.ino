@@ -117,7 +117,7 @@ void loop()
        delay(100);
        esp_sleep_enable_timer_wakeup(1000000ULL * 40); // 設置喚醒時間（微秒）
        esp_light_sleep_start(); 
-       //esp_deep_sleep_start(); //深層睡眠相當於重新啟動了
+       //esp_deep_sleep_start(); //深層睡眠相當於重新啟動了，因為深度睡眠會影響螢幕部分更新，所以不用了
     }
   }
 
