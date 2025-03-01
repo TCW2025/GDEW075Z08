@@ -58,10 +58,10 @@ void drawMonth(tm timeinfo, StructDayData *iStructDayData){
   for(int i =0 ; i< 7 * 6 ; i++){
     String lunarDate = String(iStructDayData[i].iStructLunarDate.lunarHoliday.name.c_str());
     if( lunarDate.length() == 0 ){
-        lunarDate = String(iStructDayData[i].holiday.name.c_str());
+        lunarDate = String(iStructDayData[i].iStructLunarDate.solarTerm.c_str());
     } 
     if( lunarDate.length() == 0 ){
-        lunarDate = String(iStructDayData[i].iStructLunarDate.solarTerm.c_str());
+        lunarDate = String(iStructDayData[i].holiday.name.c_str());
     } 
     if( lunarDate.length() == 0 ){
         lunarDate = String(iStructDayData[i].iStructLunarDate.day.c_str());
