@@ -9,6 +9,7 @@ void showMainModePage(){
   display.fillScreen(GxEPD_WHITE);
   //更新時間
   tm timeinfo = checkRTCTime();
+  String voltageString = getVoltageString();
 
   StructLunarDate  iStructLunarDate =  gregorian_to_lunar ( timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday);
   StructTemperature iStructTemperature = getTemperature();
@@ -40,7 +41,7 @@ void showMainModePage(){
 
     drawWeekTitle();
 
-    drawTime(timeinfo, iStructTemperature);
+    drawTime(timeinfo, iStructTemperature, voltageString);
 
     drawDateTitle(timeinfo, iStructLunarDate);
 
@@ -85,10 +86,16 @@ void drawMonth(tm timeinfo, StructDayData *iStructDayData){
   }
 }
 
-
+String getVoltageString(){
+  delay(100);
+  float voltage = getVoltage().toFloat();
+  float index = (voltage - 3.1) / (3.89 - 3.1) * 100.0 ;
+  return ("電量:" + String(voltage, 3) + "V , " + String(index, 0) + "%");
+}
 
 void onlnyUpdateRight(tm timeinfo){
   StructTemperature iStructTemperature = getTemperature();
+  String voltageString = getVoltageString();
   //如果到跨日 00:00 & 00:01 則需要設定到prefs(防止斷電)
   if(updatePrefsTime(timeinfo)){
     showMainModePage();
@@ -100,7 +107,7 @@ void onlnyUpdateRight(tm timeinfo){
   display.firstPage();
   do {
     //display.fillRect(575, 5, 225, 175, GxEPD_WHITE);
-    drawTime(timeinfo, iStructTemperature);
+    drawTime(timeinfo, iStructTemperature, voltageString);
   } while (display.nextPageBW());
   display.powerOff();
 }
@@ -228,7 +235,7 @@ void drawToDoList(tm timeinfo, StructDayData *iStructDayData) {
 }
 
 
-void drawTime(tm timeinfo, StructTemperature iStructTemperature){
+void drawTime(tm timeinfo, StructTemperature iStructTemperature, String voltageString){
   String hour = String(timeinfo.tm_hour);
   if( hour.length() == 1  ){
     hour = "0" + hour;
@@ -244,10 +251,7 @@ void drawTime(tm timeinfo, StructTemperature iStructTemperature){
   hour = hour + iStructTemperature.temperature + " C  濕度:" + iStructTemperature.humidity + "%";
   textCh(hour.c_str(), 585, 130, GxEPD_BLACK, GxEPD_WHITE); 
 
-  float voltage = getVoltage().toFloat();
-  float index = (voltage - 3.1) / (3.89 - 3.1) * 100.0 ;
-  hour = "電量:" + String(voltage, 3) + "V , " + String(index, 0) + "%";
-  textCh(hour.c_str(), 585, 155, GxEPD_BLACK, GxEPD_WHITE); 
+  textCh(voltageString.c_str(), 585, 155, GxEPD_BLACK, GxEPD_WHITE); 
 }
 
 

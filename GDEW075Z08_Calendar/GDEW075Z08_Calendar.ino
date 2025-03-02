@@ -62,7 +62,9 @@ void setup()
   ButtonD.attachClick(ButtonDClick);
   ButtonD.attachLongPressStop(ButtonDLongPress);
 
-  WiFi.setSleep(true);//關閉不必要的WIFI功能
+  //WiFi.setSleep(true);//關閉不必要的WIFI功能
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);//關閉WIFI功能
   pinMode(WAKE_IO, OUTPUT); //預設不讀取電壓
   digitalWrite(WAKE_IO, LOW); //LOW HIGH
   analogReadResolution(12);  // 設定 ADC 解析度 設定為 12-bit（0 ~ 4095）

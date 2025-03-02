@@ -303,7 +303,7 @@ void customWebPage() {
 
 void showAPModePage(){
   
-  WiFi.setSleep(false);
+  //WiFi.setSleep(false);
   display.setPartialWindow(200, 100, 500, 200 );
   display.fillScreen(GxEPD_WHITE);
   display.firstPage();
