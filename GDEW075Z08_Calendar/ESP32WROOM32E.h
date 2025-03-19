@@ -63,4 +63,4 @@
 #define GPIO27    27   // IO27, 可用 GPIO
 
 #define SHT30_ADDR 0x44  // SHT30 I2C 地址
-//#define BL8025T_ADDR 0x32  // BL8025T 的 I2C 地址  0x32  <--沒有這個東西
+#define BL8025T_ADDR 0x32  // BL8025T 的 I2C 地址  0x32  <--沒有這個東西

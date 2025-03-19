@@ -114,7 +114,7 @@ void handleWebPage(){
                   <input type="text" id="Day" name="Day" value="@Day@"><br><br>
 
                   <label for="Time">時間:24小時制(EX:13:00)</label>
-                  <input type="time" id="Time" name="Time" value="@Time@"><br><br>
+                  <input type="time" id="Time" name="Time" value="@Time@" step="60"><br><br>
               </div>
           
               <label for="todo-list" class="todo-label">代辦事項列表</label>
@@ -239,11 +239,18 @@ void handleWebPage(){
       </body>
       </html>
     )rawliteral";
-   
-  html.replace("@Year@",prefs.getString("year"));
-  html.replace("@Moon@",prefs.getString("month"));
-  html.replace("@Day@",prefs.getString("day"));
-  html.replace("@Time@",prefs.getString("time"));
+  if(prefs.getInt("BL8025T",0) == 1 ){
+    tm timeinfo = getRTCTime() ;
+    html.replace("@Year@",String(timeinfo.tm_year));
+    html.replace("@Moon@",String(timeinfo.tm_mon));
+    html.replace("@Day@",String(timeinfo.tm_mday));
+    html.replace("@Time@",String(timeinfo.tm_hour) + ":" + String(timeinfo.tm_min));
+  }else{
+    html.replace("@Year@",prefs.getString("year"));
+    html.replace("@Moon@",prefs.getString("month"));
+    html.replace("@Day@",prefs.getString("day"));
+    html.replace("@Time@",prefs.getString("time"));
+  }
   String todoList = prefs.getString("todos");
   todoList.replace("\"", "&quot;");  // 先修改字串  
   html.replace("@todo-list@",todoList);
@@ -289,9 +296,15 @@ void handleSaveWebPage(){
     )rawliteral";
   wifiManager.server->send(200, "text/html", html);
 
-  delay(2000);
+  mode = 2;
+  //主畫面模式  
+  showMainModePage();
+  wifiManager.stopConfigPortal(); 
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);//關閉WIFI功能
+  //delay(2000);
 
-  ESP.restart();
+  //ESP.restart();
 
 }
 void customWebPage() {

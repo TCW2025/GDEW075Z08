@@ -526,11 +526,11 @@ StructLunarDate print_lunar_date(int days)
       iStructLunarDate.lunarHoliday.name =  "";
       iStructLunarDate.lunarHoliday.off = true;
     }
-    else if(month == 12 && day == 31)
+    /*else if(month == 12 && day == 30) // 改由前面顯示判斷，因為12月不一定有30天
     {    
       iStructLunarDate.lunarHoliday.name =  "";
       iStructLunarDate.lunarHoliday.off = true;
-    }
+    }*/ 
     else if(month == 1 && day == 15)
     {
       iStructLunarDate.lunarHoliday.name =  "元宵節";

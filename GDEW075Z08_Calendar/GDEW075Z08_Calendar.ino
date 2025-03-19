@@ -27,6 +27,9 @@ void showSelectPage(tm timeinfo){
     textCh("2. 進入主系統模式", 235, 300, GxEPD_BLACK, GxEPD_WHITE); 
     text12("Design by TCW", 340, 430, GxEPD_BLACK, GxEPD_WHITE);  
     String now = String(timeinfo.tm_year) + "年" + String(timeinfo.tm_mon) + "月"+ String(timeinfo.tm_mday) + "日 "+ String(timeinfo.tm_hour) + "時" + String(timeinfo.tm_min) + "分";
+    if(prefs.getInt("BL8025T",0) == 1 ){
+      now = now + "(BL8025T IC)";
+    }
     textCh(now.c_str(), 500, 430, GxEPD_BLACK, GxEPD_WHITE);  
   } while (display.nextPage());
   display.powerOff();
@@ -70,6 +73,7 @@ void setup()
   analogReadResolution(12);  // 設定 ADC 解析度 設定為 12-bit（0 ~ 4095）
   analogSetAttenuation(ADC_11db);// 設定 ADC 衰減，使其支援 3.3V 量測
   //先初始化時間
+  haveBL8025T();
   tm timeinfo = checkRTCTime();
 
   // 檢查喚醒原因
@@ -95,31 +99,52 @@ void setup()
   }
 
 }
-
-
-
+void haveBL8025T(){
+  int sec, min, hour, day, month, year;
+  Wire.begin(I2C_SDA, I2C_SCL);  
+  Wire.beginTransmission(BL8025T_ADDR);
+  Wire.write(0x00);  // 設定讀取寄存器起始位址（秒數寄存器）
+  Wire.endTransmission();
+  Wire.requestFrom(BL8025T_ADDR, 7);  // 讀取 7 個字節（秒、分、時、日、月、年）
+  if (Wire.available() == 7) {
+      sec   = bcdToDec((uint8_t)Wire.read() & 0x7F);
+      min   = bcdToDec((uint8_t)Wire.read() & 0x7F);
+      hour  = bcdToDec((uint8_t)Wire.read() & 0x3F);
+      day   = bcdToDec((uint8_t)Wire.read() & 0x3F);
+      month = bcdToDec((uint8_t)Wire.read() & 0x1F);
+      year  = bcdToDec((uint8_t)Wire.read()) + 2000;
+      Serial.printf("Time: %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, min, sec);
+      prefs.putInt("BL8025T",1);
+      prefs.end();
+  }
+  Wire.end();  // 關閉 I2C，降低功耗
+}
 
 unsigned long lastProcessTime = 0;
 void loop()
 {
-  //delay(5000);
   ButtonB.tick();
   ButtonC.tick();
   ButtonD.tick();
-  delay(100);
+  if ( lastProcessTime == 0){
+     lastProcessTime = millis();
+  }
 
-  unsigned long now = millis();
-  if (now - lastProcessTime > 1000) {  // 每 1s 執行一次
-    lastProcessTime = now;
-    //getVoltage();
-    if(mode == 2){ // 選擇到主畫面 ，每一分鐘醒來即可
-      // 啟用 Light-sleep 模式
-       tm timeinfo = checkRTCTime();
-       onlnyUpdateRight(timeinfo);
-       delay(100);
-       esp_sleep_enable_timer_wakeup(1000000ULL * 40); // 設置喚醒時間（微秒）
-       esp_light_sleep_start(); 
-       //esp_deep_sleep_start(); //深層睡眠相當於重新啟動了，因為深度睡眠會影響螢幕部分更新，所以不用了
+  if(mode == 2){ // 選擇到主畫面 ，每一分鐘醒來即可
+    // 啟用 Light-sleep 模式
+      Serial.end();
+      tm timeinfo = checkRTCTime();
+      onlnyUpdateRight(timeinfo);
+      esp_sleep_enable_timer_wakeup(1000000ULL * 60); // 設置喚醒時間（微秒）
+      esp_light_sleep_start(); 
+      //esp_deep_sleep_start(); //深層睡眠相當於重新啟動了，因為深度睡眠會影響螢幕部分更新，所以不用了
+  }else{
+    delay(10);
+    //超3分鐘沒有動作就直接進去主畫面
+    unsigned long now = millis();
+    if (now - lastProcessTime > 1000 * 60 * 3) {
+      mode = 2;
+      showMainModePage(); 
     }
   }
 
