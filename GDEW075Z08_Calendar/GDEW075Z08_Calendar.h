@@ -40,6 +40,7 @@ void textNumBig(const char *str, int16_t x, int16_t y, uint16_t fg_color , uint1
 void textTitle(const char *str, int16_t x, int16_t y, uint16_t fg_color , uint16_t bg_color ) ;
 void textBattery19(const char *str, int16_t x, int16_t y, uint16_t fg_color , uint16_t bg_color ) ;
 void chineseZodiac32(const char *str, int16_t x, int16_t y, uint16_t fg_color, uint16_t bg_color);
+void textChDoubleime(const char *str, int16_t x, int16_t y, uint16_t fg_color, uint16_t bg_color);
 
 typedef struct
 {

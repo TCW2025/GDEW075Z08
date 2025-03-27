@@ -9,7 +9,7 @@ Preferences prefs;
 bool reset = false;
 int selectMode = 0; // 1  選擇 1 , 2選擇 2
 int mode = 0; // 0 選擇模式 1 設定模式 2 主系統模式
-
+int delayTime = 30 ;
 
 OneButton ButtonB(IO34, true);
 OneButton ButtonC(IO35, true);
@@ -76,6 +76,10 @@ void setup()
   haveBL8025T();
   tm timeinfo = checkRTCTime();
 
+  if(prefs.getInt("delayTime",0) != 0){
+    delayTime = prefs.getInt("delayTime",0);
+  }
+  
   // 檢查喚醒原因
   esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
 
@@ -135,7 +139,7 @@ void loop()
       Serial.end();
       tm timeinfo = checkRTCTime();
       onlnyUpdateRight(timeinfo);
-      esp_sleep_enable_timer_wakeup(1000000ULL * 60); // 設置喚醒時間（微秒）
+      esp_sleep_enable_timer_wakeup(1000000ULL * delayTime); // 設置喚醒時間（微秒）
       esp_light_sleep_start(); 
       //esp_deep_sleep_start(); //深層睡眠相當於重新啟動了，因為深度睡眠會影響螢幕部分更新，所以不用了
   }else{

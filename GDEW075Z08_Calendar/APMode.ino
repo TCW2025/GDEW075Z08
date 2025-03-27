@@ -105,18 +105,24 @@ void handleWebPage(){
 
               <div id="date-inputs" style="display: none;">
                   <label for="Year">年(ex:2025):</label>
-                  <input type="text" id="Year" name="Year" value="@Year@"><br>
+                  <input type="number" id="Year" name="Year" value="@Year@"><br>
 
                   <label for="Moon">月(ex:2):</label>
-                  <input type="text" id="Moon" name="Moon" value="@Moon@"><br><br>
+                  <input type="number" id="Moon" name="Moon" value="@Moon@"><br><br>
 
                   <label for="Day">日(ex:1):</label>
-                  <input type="text" id="Day" name="Day" value="@Day@"><br><br>
+                  <input type="number" id="Day" name="Day" value="@Day@"><br><br>
 
                   <label for="Time">時間:24小時制(EX:13:00)</label>
                   <input type="time" id="Time" name="Time" value="@Time@" step="60"><br><br>
               </div>
           
+              <label for="Offset">輸入補償（負數為每天要減少幾秒）單位是秒:</label>
+              <input type="text" id="Offset" pattern="-?\d*" name="Offset" value="@Offset@"><br><br>
+
+              <label for="DelayTime">幾秒更新1次:</label>
+              <input type="number" id="DelayTime" name="DelayTime" value="@DelayTime@"><br><br>
+
               <label for="todo-list" class="todo-label">代辦事項列表</label>
               <div id="todo-list"></div>
               
@@ -251,6 +257,9 @@ void handleWebPage(){
     html.replace("@Day@",prefs.getString("day"));
     html.replace("@Time@",prefs.getString("time"));
   }
+  html.replace("@Offset@",prefs.getString("offset","0"));
+  html.replace("@DelayTime@", String(prefs.getInt("delayTime",0)));
+
   String todoList = prefs.getString("todos");
   todoList.replace("\"", "&quot;");  // 先修改字串  
   html.replace("@todo-list@",todoList);
@@ -268,7 +277,12 @@ void handleSaveWebPage(){
     prefs.putString("month",wifiManager.server->arg("Moon"));
     prefs.putString("day",wifiManager.server->arg("Day"));
     prefs.putString("time",wifiManager.server->arg("Time"));
+    prefs.putString("offset",wifiManager.server->arg("Offset"));
     prefs.putInt("set",1);
+    prefs.putInt("delayTime",wifiManager.server->arg("DelayTime").toInt());
+    if(prefs.getInt("delayTime",0) != 0){
+      delayTime = prefs.getInt("delayTime",0);
+    }
 
     //更新時間
     String str = wifiManager.server->arg("Time");

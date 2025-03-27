@@ -16,6 +16,9 @@ void showMainModePage() {
   StructTemperature iStructTemperature = getTemperature();
   StructDayData *iStructDayData = print_monthly_calendar(timeinfo.tm_year, timeinfo.tm_mon);
 
+  //處理補假問題
+  holiday(iStructDayData);
+
   do {
 
     // 畫中間分隔線
@@ -55,6 +58,75 @@ void showMainModePage() {
   iStructDayData = nullptr;
 }
 
+void holiday(StructDayData *iStructDayData) {
+  for (int i = 0; i < 7 * 6; i++) {
+    bool holiday = (iStructDayData[i].holiday.off || iStructDayData[i].iStructLunarDate.lunarHoliday.off) ;
+    bool sun = (i % 7 == 0) ;
+    bool six = (i % 7 == 6 ) ;
+
+     
+    if (i<7*6) {
+        //判斷除夕是哪一天 最後一天就不判斷了
+        if ( i<(7*6-1) && String(iStructDayData[i+1].iStructLunarDate.lunarHoliday.name.c_str()) == "春節") {
+          iStructDayData[i].iStructLunarDate.lunarHoliday.name = "除夕";
+          iStructDayData[i].iStructLunarDate.lunarHoliday.off = true;
+          holiday = true;
+        }
+        //清明節因為是用算出來的，所以日曆產生裡面預設沒有放假
+        if (String(iStructDayData[i].iStructLunarDate.solarTerm.c_str()) == "清明節" ) {
+          iStructDayData[i].iStructLunarDate.lunarHoliday.off = true;
+          holiday = true;
+        }
+        
+        //處理補假問題
+        //1.節日遇到禮拜六，設定禮拜五放假
+        //2.節日遇到禮拜日，設定禮拜一放假
+        if(holiday){
+          if(six){
+            iStructDayData[i-1].holiday.off;
+          }
+          if(sun){
+            iStructDayData[i+1].holiday.off;
+          }
+        }
+
+        //因為兒童節跟清明節都放假（可能在同一天）
+        if (String(iStructDayData[i].iStructLunarDate.solarTerm.c_str()) == "清明節" && 
+            String(iStructDayData[i].holiday.name.c_str()) == "兒童節" ) {
+            iStructDayData[i].holiday.off  = true;
+            
+            switch (i % 7) {
+              //禮拜六 設定四五放假
+              case 6:
+                iStructDayData[i-1].holiday.off  = true;
+                iStructDayData[i-2].holiday.off  = true;
+              break;
+              //禮拜日 設定一二放假
+              case 0:
+                iStructDayData[i+1].holiday.off  = true;
+                iStructDayData[i+2].holiday.off  = true;
+              break;
+              case 1:
+              case 3:
+              case 4:
+              //禮拜四 禮拜五放假
+              //禮拜三 禮拜四放假
+              //禮拜一 禮拜二放假
+                iStructDayData[i+1].holiday.off  = true;
+              break;
+              case 2:
+              case 5:
+                //禮拜五 禮拜四放假
+                //禮拜二 禮拜一放假
+                iStructDayData[i-1].holiday.off  = true;
+              break;
+            }
+        }
+        
+    }
+  }
+}
+
 void drawMonth(tm timeinfo, StructDayData *iStructDayData) {
   for (int i = 0; i < 7 * 6; i++) {
     String lunarDate = String(iStructDayData[i].iStructLunarDate.lunarHoliday.name.c_str());
@@ -70,17 +142,11 @@ void drawMonth(tm timeinfo, StructDayData *iStructDayData) {
     String day = String(iStructDayData[i].day);
     int dayX = day.length() == 1 ? 5 : 0;
 
-    //判斷除夕是哪一天 最後一天就不判斷了
-    bool holiday = false;
-    if (i<7*6-1){
-        if (String(iStructDayData[i+1].iStructLunarDate.lunarHoliday.name.c_str()) == "春節") {
-          lunarDate = "除夕";
-          holiday = true;
-        }
-    }
+    bool holiday = (i % 7 == 0 || i % 7 == 6 || iStructDayData[i].holiday.off || iStructDayData[i].iStructLunarDate.lunarHoliday.off) ;
+    bool isWeedend = (i % 7 == 0 || i % 7 == 6 );
 
     uint16_t bg_color = GxEPD_WHITE;
-    uint16_t fg_color = (i % 7 == 0 || i % 7 == 6 || holiday || iStructDayData[i].holiday.off || iStructDayData[i].iStructLunarDate.lunarHoliday.off) ? GxEPD_RED : GxEPD_BLACK;
+    uint16_t fg_color = holiday? GxEPD_RED : GxEPD_BLACK;
 
     if (String(timeinfo.tm_year) == String(iStructDayData[i].year) && String(timeinfo.tm_mon) == String(iStructDayData[i].month) && String(timeinfo.tm_mday) == String(iStructDayData[i].day)) {
       uint16_t tmp = bg_color;
@@ -98,7 +164,7 @@ void drawMonth(tm timeinfo, StructDayData *iStructDayData) {
 String getVoltageString() {
   //delay(100);
   float voltage = getVoltage().toFloat();
-  float index = (voltage - 3.1) / (3.89 - 3.1) * 100.0;
+  float index = (voltage - 2.8) / (3.85 - 2.8) * 100.0;
   return ("電量:" + String(voltage, 2) + "V , " + String(index, 0) + "%");
 }
 
@@ -106,13 +172,6 @@ void onlnyUpdateRight(tm timeinfo) {
 
   //如果到跨日 00:00 則需要設定到prefs(防止斷電)
   if (updatePrefsTime(timeinfo)) {
-
-    //每天有3分鐘的誤差
-    //所以先延遲兩分鐘
-    //delay(1000 * 60 * 2);
-    //setRTC(timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday,
-    //              timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-
     showMainModePage();
     return;
   }
@@ -299,7 +358,7 @@ void drawTime(tm timeinfo, StructTemperature iStructTemperature, String voltageS
   hour = hour + ":" + min;
   textNumBig(hour.c_str(), 585, 90, GxEPD_BLACK, GxEPD_WHITE);
 
-  textCh(getDoubleHour(timeinfo.tm_hour, timeinfo.tm_min).c_str(), 650, 110, GxEPD_BLACK, GxEPD_WHITE);
+  textChDoubleime(getDoubleHour(timeinfo.tm_hour, timeinfo.tm_min).c_str(), 640, 115, GxEPD_BLACK, GxEPD_WHITE);
 
   hour = "溫度:";
   hour = hour + iStructTemperature.temperature + " C  濕度:" + iStructTemperature.humidity + "%";
@@ -314,7 +373,7 @@ String getDoubleHour(int hour, int min){
     }else{
       count = 4;
     }
-    count = count + min / 15;
+    count = count * 4 + min / 15;
     switch (hour) {
       case 23:
       case 0:
@@ -358,20 +417,30 @@ String getDoubleHour(int hour, int min){
 
 bool updatePrefsTime(tm timeinfo) {
 
-    //每天有3分鐘的誤差 ，當沒有BL8025T才需要延遲
-    //計算每小時應該有8秒的延遲. 24*8s 
-  if (timeinfo.tm_min %  10  == 0 && prefs.getInt("BL8025T",0) == 0 ) {
-    delay(1000 * 0.8);
-    setRTC(timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday,
-                  timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-  }
-  if (timeinfo.tm_min == 0 && timeinfo.tm_hour == 0) {
-    //每天00:00 & 00:01 則需要設定到prefs(防止斷電)
+  if (timeinfo.tm_min == 0 && timeinfo.tm_hour == 0 && 
+      String(timeinfo.tm_mon) != prefs.getString("month") && 
+      String(timeinfo.tm_mday) != prefs.getString("day")) {
+
+    //修正每天有不同的誤差
+    int offset = prefs.getString("offset","0").toInt(); 
+    if (offset != 0) {
+      if (offset < 0) { 
+        delay(1000 * offset * -1);
+      }else if (offset > 0) {
+        timeinfo.tm_sec = timeinfo.tm_sec + offset;
+      }
+      setRTC(timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday,
+                    timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    }
+    
+    
+    //每天00:00 則需要設定到prefs(防止斷電)
     prefs.putString("year", String(timeinfo.tm_year));
     prefs.putString("month", String(timeinfo.tm_mon));
     prefs.putString("day", String(timeinfo.tm_mday));
     prefs.putString("time", "00:00");
     prefs.end();
+
     return true;
   }
   return false;
@@ -379,7 +448,7 @@ bool updatePrefsTime(tm timeinfo) {
 
 tm checkRTCTime() {
   prefs.begin("Calendar");
-    struct tm timeinfo = getRTCTime();
+  struct tm timeinfo = getRTCTime();
   if(prefs.getInt("BL8025T",0) == 0 ){
     if (prefs.getInt("set", 0) == 0) {
       Serial.println("沒有設定時間，無法復原");
@@ -460,7 +529,7 @@ String getVoltage() {
   pinMode(WAKE_IO, OUTPUT);
   digitalWrite(WAKE_IO, HIGH);
   //等待通電
-  delay(10);
+  delay(100);
   int raw = analogRead(ADC_BAT);
   float voltage = (raw / 4095.0) * 3.3 * 2;  //3.86
   Serial.println(voltage);

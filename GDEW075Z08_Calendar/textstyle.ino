@@ -104,6 +104,24 @@ void textCh34(const char *str, int16_t x, int16_t y, uint16_t fg_color = GxEPD_W
   }
 }
 
+
+void textChDoubleime(const char *str, int16_t x, int16_t y, uint16_t fg_color = GxEPD_WHITE, uint16_t bg_color = GxEPD_BLACK) 
+{
+  bool r2l = false;
+  int8_t baseline = 42;
+  u8g2Fonts.setFontMode(1);
+  u8g2Fonts.setFont(TWKai98_18);
+  u8g2Fonts.setBackgroundColor(bg_color);
+  u8g2Fonts.setForegroundColor(fg_color);
+  if (!r2l) {
+    u8g2Fonts.drawUTF8(x, y , str);
+  } else {
+    int16_t w = u8g2Fonts.getUTF8Width(str);
+    int16_t new_x = display.width() - x - w;
+    u8g2Fonts.drawUTF8(new_x, y , str);
+  }
+}
+
 void textCh(const char *str, int16_t x, int16_t y, uint16_t fg_color = GxEPD_WHITE, uint16_t bg_color = GxEPD_BLACK) 
 {
   bool r2l = false;
