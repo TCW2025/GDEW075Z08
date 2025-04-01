@@ -61,7 +61,9 @@ void setup()
   prefs.begin("Calendar");
 
   ButtonB.attachClick(ButtonBClick);
+  ButtonB.attachLongPressStop(ButtonBClick);
   ButtonC.attachClick(ButtonCClick);
+  ButtonC.attachLongPressStop(ButtonCClick);
   ButtonD.attachClick(ButtonDClick);
   ButtonD.attachLongPressStop(ButtonDLongPress);
 
@@ -120,6 +122,9 @@ void haveBL8025T(){
       Serial.printf("Time: %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, min, sec);
       prefs.putInt("BL8025T",1);
       prefs.end();
+  }else{
+      prefs.putInt("BL8025T",0);
+      prefs.end();
   }
   Wire.end();  // 關閉 I2C，降低功耗
 }
@@ -136,12 +141,18 @@ void loop()
 
   if(mode == 2){ // 選擇到主畫面 ，每一分鐘醒來即可
     // 啟用 Light-sleep 模式
+    //unsigned long now = millis();
+    //if (now - lastProcessTime > 1000 * delayTime) {
       Serial.end();
       tm timeinfo = checkRTCTime();
       onlnyUpdateRight(timeinfo);
       esp_sleep_enable_timer_wakeup(1000000ULL * delayTime); // 設置喚醒時間（微秒）
       esp_light_sleep_start(); 
       //esp_deep_sleep_start(); //深層睡眠相當於重新啟動了，因為深度睡眠會影響螢幕部分更新，所以不用了
+    //  lastProcessTime = now;
+    //}else{
+    //  delay(100);
+    //}
   }else{
     delay(10);
     //超3分鐘沒有動作就直接進去主畫面

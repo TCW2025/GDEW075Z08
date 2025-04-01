@@ -258,7 +258,7 @@ void handleWebPage(){
     html.replace("@Time@",prefs.getString("time"));
   }
   html.replace("@Offset@",prefs.getString("offset","0"));
-  html.replace("@DelayTime@", String(prefs.getInt("delayTime",0)));
+  html.replace("@DelayTime@", String(prefs.getInt("delayTime",30)));
 
   String todoList = prefs.getString("todos");
   todoList.replace("\"", "&quot;");  // 先修改字串  
@@ -277,12 +277,7 @@ void handleSaveWebPage(){
     prefs.putString("month",wifiManager.server->arg("Moon"));
     prefs.putString("day",wifiManager.server->arg("Day"));
     prefs.putString("time",wifiManager.server->arg("Time"));
-    prefs.putString("offset",wifiManager.server->arg("Offset"));
     prefs.putInt("set",1);
-    prefs.putInt("delayTime",wifiManager.server->arg("DelayTime").toInt());
-    if(prefs.getInt("delayTime",0) != 0){
-      delayTime = prefs.getInt("delayTime",0);
-    }
 
     //更新時間
     String str = wifiManager.server->arg("Time");
@@ -291,6 +286,13 @@ void handleSaveWebPage(){
     String min = str.substring(commaIndex + 1);
     setRTC(wifiManager.server->arg("Year").toInt(),wifiManager.server->arg("Moon").toInt(),wifiManager.server->arg("Day").toInt(), hour.toInt() , min.toInt(), 0) ;
   }
+  
+  prefs.putString("offset",wifiManager.server->arg("Offset"));
+  prefs.putInt("delayTime",wifiManager.server->arg("DelayTime").toInt());
+  if(prefs.getInt("delayTime",0) != 0){
+    delayTime = prefs.getInt("delayTime",0);
+  }
+  
   String todoList = wifiManager.server->arg("todos");  
   prefs.putString("todos",todoList);
   prefs.end();

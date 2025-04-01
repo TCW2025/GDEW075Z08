@@ -2,14 +2,15 @@
 using namespace std;
 String number[]= {"初","一","二","三","四","五","六","七"};
 
-void showMainModePage() {
 
-  // display.setPartialWindow(200, 100, 500, 200 );
-  display.setFullWindow();
-  display.firstPage();
-  display.fillScreen(GxEPD_WHITE);
+void showMainModePage(){
   //更新時間
   tm timeinfo = checkRTCTime();
+  showNextPage(timeinfo);
+}
+
+void showNextPage(tm timeinfo){
+
   String voltageString = getVoltageString();
 
   StructLunarDate iStructLunarDate = gregorian_to_lunar(timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday);
@@ -19,6 +20,15 @@ void showMainModePage() {
   //處理補假問題
   holiday(iStructDayData);
 
+  showMonth(timeinfo, iStructLunarDate, iStructTemperature, iStructDayData, voltageString);
+
+}
+
+void showMonth(tm timeinfo, StructLunarDate iStructLunarDate, StructTemperature iStructTemperature, StructDayData *iStructDayData, String voltageString ) {
+
+  display.setFullWindow();
+  display.firstPage();
+  display.fillScreen(GxEPD_WHITE);
   do {
 
     // 畫中間分隔線
@@ -422,7 +432,7 @@ bool updatePrefsTime(tm timeinfo) {
       String(timeinfo.tm_mday) != prefs.getString("day")) {
 
     //修正每天有不同的誤差
-    int offset = prefs.getString("offset","0").toInt(); 
+    int offset = atoi(prefs.getString("offset","0").c_str());
     if (offset != 0) {
       if (offset < 0) { 
         delay(1000 * offset * -1);

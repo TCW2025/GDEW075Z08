@@ -58,6 +58,7 @@ tm checkRTCTime();
 void onlnyUpdateRight(tm timeinfo);
 void drawMonth(StructDayData *iStructDayData);
 String getVoltageString();
+void showNextPage(tm timeinfo);
 
 //ButtonController
 void ButtonBClick();
