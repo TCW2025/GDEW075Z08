@@ -32,12 +32,6 @@ https://github.com/ButTaiwan/iansui
 捐款
 https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NGG9SXUUQL5J2
 
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-  <input type="hidden" name="cmd" value="_s-xclick" />
-  <input type="hidden" name="hosted_button_id" value="NGG9SXUUQL5J2" />
-  <input type="hidden" name="currency_code" value="USD" />
-  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_SM.gif" border="0" name="submit" title="PayPal：更安全簡便的線上付款方式！" alt="立即購" />
-</form>
 
 MIT授權條款
 Copyright (C) <year> <copyright holders>
