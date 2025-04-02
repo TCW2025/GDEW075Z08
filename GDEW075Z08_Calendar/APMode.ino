@@ -293,6 +293,14 @@ void handleSaveWebPage(){
     delayTime = prefs.getInt("delayTime",0);
   }
   
+  if(prefs.getInt("BL8025T",0) == 1 ){
+    Wire.begin(I2C_SDA, I2C_SCL);  
+    int offset = atoi(prefs.getString("offset","0").c_str());
+    setCalibration(offset);
+    displayCalibration();
+    Wire.end();  // 關閉 I2C，降低功耗
+  }
+
   String todoList = wifiManager.server->arg("todos");  
   prefs.putString("todos",todoList);
   prefs.end();
@@ -328,6 +336,57 @@ void customWebPage() {
   wifiManager.server->on("/", handleWebPage);  
   wifiManager.server->on("/save", handleSaveWebPage);  
 }
+
+
+void setCalibration(int value) {
+  uint8_t calReg = 0;
+  
+  // 準備校準值寄存器
+  if (value >= 0) {
+    calReg = (uint8_t)value & 0x3F;  // 正值: 低6位
+  } else {
+    calReg = ((uint8_t)(-value) & 0x3F) | 0x80;  // 負值: 低6位 + 符號位
+  }
+  
+  writeRegister(0x07, calReg);
+}
+
+
+// 寫入寄存器
+void writeRegister(uint8_t reg, uint8_t value) {
+  Wire.beginTransmission(BL8025T_ADDR);
+  Wire.write(reg);
+  Wire.write(value);
+  Wire.endTransmission();
+}
+
+// 顯示當前校準值
+void displayCalibration() {
+  uint8_t calReg = readRegister(0x07);
+  int calValue;
+  
+  // 解釋校準值
+  if (calReg & 0x80) {
+    // 負值
+    calValue = -((int)(calReg & 0x3F));
+  } else {
+    // 正值
+    calValue = calReg & 0x3F;
+  }
+  
+  Serial.print("當前校準值: ");
+  Serial.println(calValue);
+}
+
+uint8_t readRegister(uint8_t reg) {
+  Wire.beginTransmission(BL8025T_ADDR);
+  Wire.write(reg);
+  Wire.endTransmission();
+  
+  Wire.requestFrom(BL8025T_ADDR, 1);
+  return Wire.read();
+}
+
 
 
 void showAPModePage(){

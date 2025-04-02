@@ -433,7 +433,7 @@ bool updatePrefsTime(tm timeinfo) {
 
     //修正每天有不同的誤差
     int offset = atoi(prefs.getString("offset","0").c_str());
-    if (offset != 0) {
+    if (offset != 0 && prefs.getInt("BL8025T",0) == 0 ) {
       if (offset < 0) { 
         delay(1000 * offset * -1);
       }else if (offset > 0) {

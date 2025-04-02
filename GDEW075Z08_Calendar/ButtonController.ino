@@ -36,27 +36,27 @@ void buttonClick(int index){
   }else if( mode = 2) {
     //主畫面模式  
     //showMainModePage();
-     if(index == 2 ){
-        showMainModePage();
-     }else if(index == 3 ){
-        tm timeinfo = checkRTCTime();
-        if(timeinfo.tm_mon==1){
-          timeinfo.tm_mon=12;
-          timeinfo.tm_year--;
-        }else{
-          timeinfo.tm_mon--;
-        }
-        showNextPage(timeinfo);
-     }else if(index == 4 ){
-        tm timeinfo = checkRTCTime();
-        if(timeinfo.tm_mon==12){
-          timeinfo.tm_mon=1;
-          timeinfo.tm_year++;
-        }else{
-          timeinfo.tm_mon++;
-        }
-        showNextPage(timeinfo);
-     }
+    /*if(index == 2 ){
+      showMainModePage();
+    }else if(index == 3 ){
+      tm timeinfo = checkRTCTime();
+      if(timeinfo.tm_mon==1){
+        timeinfo.tm_mon=12;
+        timeinfo.tm_year--;
+      }else{
+        timeinfo.tm_mon--;
+      }
+      showNextPage(timeinfo);
+    }else if(index == 4 ){
+      tm timeinfo = checkRTCTime();
+      if(timeinfo.tm_mon==12){
+        timeinfo.tm_mon=1;
+        timeinfo.tm_year++;
+      }else{
+        timeinfo.tm_mon++;
+      }
+      showNextPage(timeinfo);
+    }*/
   }
 }
 

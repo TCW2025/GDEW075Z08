@@ -122,6 +122,7 @@ void haveBL8025T(){
       Serial.printf("Time: %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, min, sec);
       prefs.putInt("BL8025T",1);
       prefs.end();
+      displayCalibration();
   }else{
       prefs.putInt("BL8025T",0);
       prefs.end();
