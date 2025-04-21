@@ -26,11 +26,13 @@ void showSelectPage(tm timeinfo){
     textCh("1. 進入設定模式", 235, 270, GxEPD_BLACK, GxEPD_WHITE); 
     textCh("2. 進入主系統模式", 235, 300, GxEPD_BLACK, GxEPD_WHITE); 
     text12("Design by TCW", 340, 430, GxEPD_BLACK, GxEPD_WHITE);  
+    int offset = atoi(prefs.getString("offset","0").c_str());
     String now = String(timeinfo.tm_year) + "年" + String(timeinfo.tm_mon) + "月"+ String(timeinfo.tm_mday) + "日 "+ String(timeinfo.tm_hour) + "時" + String(timeinfo.tm_min) + "分";
     if(prefs.getInt("BL8025T",0) == 1 ){
       now = now + "(BL8025T IC)";
     }
-    textCh(now.c_str(), 500, 430, GxEPD_BLACK, GxEPD_WHITE);  
+    now = now + String(offset);
+    textCh(now.c_str(), 480, 430, GxEPD_BLACK, GxEPD_WHITE);  
   } while (display.nextPage());
   display.powerOff();
 }
@@ -122,12 +124,13 @@ void haveBL8025T(){
       Serial.printf("Time: %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, min, sec);
       prefs.putInt("BL8025T",1);
       prefs.end();
-      displayCalibration();
   }else{
       prefs.putInt("BL8025T",0);
       prefs.end();
   }
   Wire.end();  // 關閉 I2C，降低功耗
+
+  prefs.begin("Calendar");
 }
 
 unsigned long lastProcessTime = 0;
@@ -144,7 +147,11 @@ void loop()
     // 啟用 Light-sleep 模式
     //unsigned long now = millis();
     //if (now - lastProcessTime > 1000 * delayTime) {
-      Serial.end();
+
+
+      //Serial.end();
+
+
       tm timeinfo = checkRTCTime();
       onlnyUpdateRight(timeinfo);
       esp_sleep_enable_timer_wakeup(1000000ULL * delayTime); // 設置喚醒時間（微秒）

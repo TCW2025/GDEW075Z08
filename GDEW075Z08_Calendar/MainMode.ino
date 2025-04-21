@@ -373,6 +373,9 @@ void drawTime(tm timeinfo, StructTemperature iStructTemperature, String voltageS
   hour = "溫度:";
   hour = hour + iStructTemperature.temperature + " C  濕度:" + iStructTemperature.humidity + "%";
   textCh(hour.c_str(), 585, 140, GxEPD_BLACK, GxEPD_WHITE);
+
+  int offset = atoi(prefs.getString("offset","0").c_str());
+  voltageString = voltageString + " , " + offset;
   textCh(voltageString.c_str(), 585, 165, GxEPD_BLACK, GxEPD_WHITE);
 }
 
@@ -427,13 +430,13 @@ String getDoubleHour(int hour, int min){
 
 bool updatePrefsTime(tm timeinfo) {
 
-  if (timeinfo.tm_min == 0 && timeinfo.tm_hour == 0 && 
-      String(timeinfo.tm_mon) != prefs.getString("month") && 
-      String(timeinfo.tm_mday) != prefs.getString("day")) {
-
+  if (timeinfo.tm_min == 0 && timeinfo.tm_hour == 0 
+       && (prefs.getString("month").toInt() != timeinfo.tm_mon 
+       || prefs.getString("day").toInt() != timeinfo.tm_mday)){
+        
     //修正每天有不同的誤差
     int offset = atoi(prefs.getString("offset","0").c_str());
-    if (offset != 0 && prefs.getInt("BL8025T",0) == 0 ) {
+    if (offset != 0) {
       if (offset < 0) { 
         delay(1000 * offset * -1);
       }else if (offset > 0) {
@@ -450,7 +453,7 @@ bool updatePrefsTime(tm timeinfo) {
     prefs.putString("day", String(timeinfo.tm_mday));
     prefs.putString("time", "00:00");
     prefs.end();
-
+    prefs.begin("Calendar");
     return true;
   }
   return false;
@@ -501,11 +504,11 @@ StructTemperature getTemperature() {
     float temperature = -45.0 + (175.0 * ((float)rawTemp / 65535.0));
     float humidity = 100.0 * ((float)rawHum / 65535.0);
 
-    Serial.print("Temperature: ");
+    /*Serial.print("Temperature: ");
     Serial.print(temperature);
     Serial.print(" °C, Humidity: ");
     Serial.print(humidity);
-    Serial.println(" %");
+    Serial.println(" %");*/
 
     iStructTemperature.temperature = String(temperature, 1);
     iStructTemperature.humidity = String(humidity, 1);

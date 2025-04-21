@@ -292,20 +292,19 @@ void handleSaveWebPage(){
   if(prefs.getInt("delayTime",0) != 0){
     delayTime = prefs.getInt("delayTime",0);
   }
+
+  String todoList = wifiManager.server->arg("todos");  
+  prefs.putString("todos",todoList);
+  prefs.end();
+  prefs.begin("Calendar");
   
-  if(prefs.getInt("BL8025T",0) == 1 ){
+  /*if(prefs.getInt("BL8025T",0) == 1 ){
     Wire.begin(I2C_SDA, I2C_SCL);  
     int offset = atoi(prefs.getString("offset","0").c_str());
     setCalibration(offset);
     displayCalibration();
     Wire.end();  // 關閉 I2C，降低功耗
-  }
-
-  String todoList = wifiManager.server->arg("todos");  
-  prefs.putString("todos",todoList);
-  prefs.end();
-
-
+  }*/
   String html = R"rawliteral(
         <!DOCTYPE html>
         <html>
@@ -348,7 +347,13 @@ void setCalibration(int value) {
     calReg = ((uint8_t)(-value) & 0x3F) | 0x80;  // 負值: 低6位 + 符號位
   }
   
-  writeRegister(0x07, calReg);
+  writeRegister(REG_CTRL1, 0x00); // 啟用24小時模式
+  // Dafault value of temperature compensation interval is 2 seconds
+  writeRegister(REG_CTRL2, 0x00); 
+  delay(2000);
+  writeRegister(REG_RTC_EXT, 0x00); 
+
+  writeRegister(REG_CAL, calReg);
 }
 
 
@@ -362,7 +367,7 @@ void writeRegister(uint8_t reg, uint8_t value) {
 
 // 顯示當前校準值
 void displayCalibration() {
-  uint8_t calReg = readRegister(0x07);
+  uint8_t calReg = readRegister(REG_CAL);
   int calValue;
   
   // 解釋校準值
@@ -374,8 +379,10 @@ void displayCalibration() {
     calValue = calReg & 0x3F;
   }
   
-  Serial.print("當前校準值: ");
-  Serial.println(calValue);
+  Serial.println("當前校準值: " + String(calValue));
+  Serial.println("當前REG_CTRL1: " + String(readRegister(REG_CTRL1)));
+  Serial.println("當前REG_CTRL2: " + String(readRegister(REG_CTRL2)));
+  Serial.println("當前REG_RTC_EXT: " + String(readRegister(REG_RTC_EXT)));
 }
 
 uint8_t readRegister(uint8_t reg) {

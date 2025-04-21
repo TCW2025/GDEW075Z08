@@ -66,5 +66,5 @@ void ButtonCClick();
 void ButtonDClick();
 void ButtonDLongPress();
 
-
+void setCalibration(int value);
 void displayCalibration();

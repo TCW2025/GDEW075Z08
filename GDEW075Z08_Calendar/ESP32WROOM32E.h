@@ -64,3 +64,19 @@
 
 #define SHT30_ADDR 0x44  // SHT30 I2C 地址
 #define BL8025T_ADDR 0x32  // BL8025T 的 I2C 地址  0x32  <--沒有這個東西
+
+#define REG_CAL         0x07  // 校準寄存器
+#define REG_CTRL1       0x0E  // 控制寄存器1. RX8025T_RTC_STATUS
+#define REG_CTRL2       0x0F  // 控制寄存器2. RX8025T_RTC_CONTROL
+#define REG_RTC_EXT     0x0D
+
+// Temperature compensation interval
+#define	INT_0_5_SEC	0x00
+#define	INT_2_SEC       0x40
+#define	INT_10_SEC	0x80
+#define	INT_30_SEC	0xC0
+
+// FOUT frequency
+#define FOUT_32768	0x00	// or 0x0C
+#define FOUT_1024	0x04
+#define FOUT_1		0x08 
