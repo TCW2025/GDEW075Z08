@@ -49,7 +49,7 @@ float C_value_20[]= {4.6295,19.4599,6.3826,21.4155,5.59,20.888,6.318,21.86,6.5,2
 // 節氣基礎月
 float C_month[]= {2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13};
 
-const char* temp[24]= {"立春","雨水","驚蟄","春分","清明","谷雨","立夏","小滿","芒種","夏至","小暑","大暑","立秋","處暑","白露","秋分","寒露","霜降","立冬","小雪","大雪","冬至","小寒","大寒"};
+const char* temp[24]= {"立春","雨水","驚蟄","春分","清明節","谷雨","立夏","小滿","芒種","夏至","小暑","大暑","立秋","處暑","白露","秋分","寒露","霜降","立冬","小雪","大雪","冬至","小寒","大寒"};
 
 
 
@@ -363,11 +363,6 @@ string get_lunar_solar_term_holiday(StructsolarTerm* structsolarTermArray, int m
     for(int i =0 ; i < 24 ;i++){
         if(structsolarTermArray[i].day == day  && structsolarTermArray[i].month == month){
              return structsolarTermArray[i].solarTerm;
-        }
-        if(!structsolarTermArray[i].solarTerm.compare("春分")){
-            if( (15 - (31 - structsolarTermArray[i].day))  ==  day  && structsolarTermArray[i].month + 1 == month){
-             return "清明節";
-            }
         }
     }
     return "";
